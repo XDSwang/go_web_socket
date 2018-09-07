@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>socket聊天软件</title>
+</head>
+
+<body>
+
+	<!--应用页面-->
+
+	<!--聊天记录-->
+	<div id="d">
+		<div id="sk"></div>
+
+
+	</div>
+
+
+
+	<button onclick="get_users()">获取在线用户数</button>
+	<br>
+	<!--用户输入-->
+	<input type="" value="" style="width: 500px; height: 100px; margin:auto;">
+
+	<button id="bu">发送</button>
+
+
+
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+	<br />
+
+	<script>
+		//数据
+
+		//应用开始响应的数据
+
+		//应用过程响应的数据
+
+		document.querySelector('button#bu').onclick = function () {
+			var t = document.querySelector('input');
+			var t = t.value;
+			// socket
+			send(t);
+		};
+
+		function get_users() {
+			
+			send("get_users");
+		}
+	</script>
+
+
+
+
+	<script type="text/javascript">
+		var sock = null;
+
+		var wsuri = "ws://127.0.0.1:1234";
+		var name;
+		// 是否第一次发送信息状态
+		var tre = true;
+
+
+
+		window.onload = function () {
+
+			document.querySelector("div#d div#sk").innerHTML += "<div>开始连接 </div>";
+
+			sock = new WebSocket(wsuri);
+
+			sock.onopen = function () {
+				document.querySelector("div#d div#sk").innerHTML += "<div>连接完毕 </div>";
+
+				// 连接之后才发送信息 请求修改名字
+				var r = prompt("请输入你的名字");
+				if (r != null) {
+					//确定获取值 并记录名字
+					send("setname:" + r);
+				} else {
+					//否则默认值 并记录名字
+					send("setname:这家伙很懒,名字没设置");
+				}
+			}
+
+			sock.onclose = function (e) {
+				console.log("服务器连接关闭(" + e.code + ")");
+				document.querySelector("div#d div#sk").innerHTML += "<div>服务器连接关闭 <div>";
+			}
+
+
+			// 服务器发送过来的数据
+			sock.onmessage = function (e) {
+				//如果是第一次 记录名字 并关闭
+				if (tre) {
+					name = e.data;
+					tre = false;
+
+					//var str = "<dt>你的名字:" + name + "</dt>";
+					var str = "你的名字:" + name;
+					document.querySelector("div#d div#sk").innerHTML += "<div>" + str + "</div>";
+					document.querySelector("div#d ").innerHTML += "<div>" + str + "</div>";
+
+				} else {
+					//数据处理
+					if (e.data == "Dxx服务器请求**确认是否在线") {
+
+					} else {
+						var str = "<dt>" + e.data + "</dt>";
+						document.querySelector("div#d div#sk").innerHTML += "<div>" + str + "</div>";
+
+					}
+
+
+				}
+
+
+
+			}
+		};
+
+		//发送信息
+		function send(msg) {
+			sock.send(msg);
+		};
+	</script>
+
+
+</body>
+
+</html>
